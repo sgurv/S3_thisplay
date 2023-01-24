@@ -11,6 +11,7 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_touch.h"
 #include "esp_lcd_touch_cst816d.h"
+#include "esp_lcd_st7735.h"
 #include "bsps3thisplay.h"
 
 
@@ -117,17 +118,19 @@ static esp_err_t lvgl_port_tick_init(void)
     esp_timer_handle_t lvgl_tick_timer = NULL;
     BSP_ERROR_CHECK_RETURN_ERR(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
     return esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000);
+    ESP_LOGI(TAG, "LVGL tick timer created");
 }
 
 static void lvgl_port_task(void *arg)
 {
-    //ESP_LOGI(TAG, "Starting LVGL task");
+    ESP_LOGI(TAG, "Starting LVGL task");
+    // int i = 100;
+    // uint8_t j = 0;
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(20));
         bsp_display_lock(0);
         lv_timer_handler();
         bsp_display_unlock();
-
     }
 }
 
@@ -160,6 +163,8 @@ esp_lcd_touch_handle_t bsp_touch_panel_init(void)
 
     BSP_ERROR_CHECK_RETURN_ERR(esp_lcd_new_panel_io_i2c((esp_lcd_i2c_bus_handle_t)BSP_TP_I2C_NUM, &tp_io_config, &tp_io_handle));
     BSP_ERROR_CHECK_RETURN_ERR(esp_lcd_touch_new_i2c_cst816d(tp_io_handle, &tp_cfg, &tp_handle));
+
+    ESP_LOGI(TAG, "Touch panel init");
 
     return tp_handle;
 }
@@ -225,14 +230,14 @@ static esp_err_t lvgl_port_indev_init(void)
 lv_disp_t *bsp_display_start(void){
 
     //small LCD backlight
-    ESP_LOGI(TAG, "Turn off LCD backlight");
+    ESP_LOGI(TAG, "Init and turn off LCD backlight");
     gpio_config_t bk_gpio_config = {
         .mode = GPIO_MODE_OUTPUT,
         .pin_bit_mask = 1ULL << BSP_LCD_BK_LIGHT
     };
     ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
 
-//Turn on
+    //Default off, Turn on after display init
     gpio_set_level(BSP_LCD_BK_LIGHT, LCD_BK_LIGHT_OFF_LEVEL);
 
     lv_init();
@@ -256,7 +261,7 @@ lv_disp_t *bsp_display_start(void){
             BSP_LCD_DATA7
         },
         .bus_width = 8,
-        .max_transfer_bytes = BSP_LCD_H_RES * 20 * sizeof(uint16_t),
+        .max_transfer_bytes = LVGL_BUFF_SIZE_PIX * sizeof(lv_color_t),
         //.psram_trans_align = EXAMPLE_PSRAM_DATA_ALIGNMENT,
         //.sram_trans_align = 4,
     };
@@ -273,7 +278,10 @@ lv_disp_t *bsp_display_start(void){
             .dc_data_level = 1,
         },
         .flags = {
-            .swap_color_bytes = !LV_COLOR_16_SWAP, // Swap can be done in LvGL (default) or DMA
+            //.cs_active_high = 0, //disable active high
+            //.swap_color_bytes = !LV_COLOR_16_SWAP, // Swap can be done in LvGL (default) or DMA
+            .pclk_active_neg = 0, //Check
+            .pclk_idle_low = 0, //Check
         },
         .on_color_trans_done = lvgl_port_flush_ready,
         .user_ctx = &disp_drv,
@@ -287,19 +295,20 @@ lv_disp_t *bsp_display_start(void){
 
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = BSP_LCD_RST,
-        .rgb_endian = ESP_LCD_COLOR_SPACE_BGR,
+        .rgb_endian = ESP_LCD_COLOR_SPACE_RGB,
         .bits_per_pixel = 16,
     };
 
-    //ST7789 LCD init
-    ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
+    //ST7735 LCD init
+    //ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_new_panel_st7735(io_handle, &panel_config, &panel_handle));
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
 
-    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
+    //ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true)); // no effect here
 
-    ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle,0,20)); //TODO: Adjust, Check why this offset required
+    ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle,0,20)); //required adjusment depending on panel
 
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
 
@@ -307,19 +316,17 @@ lv_disp_t *bsp_display_start(void){
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
-
-
     //alloc draw buffers used by LVGL
 
     //it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
     lv_color_t *buf1 = heap_caps_malloc(LVGL_BUFF_SIZE_PIX * sizeof(lv_color_t), MALLOC_CAP_DMA);
     assert(buf1);
     
-    // lv_color_t *buf2 = heap_caps_malloc(LVGL_BUFF_SIZE_PIX * sizeof(lv_color_t), MALLOC_CAP_DMA);
-    // assert(buf2);
+    lv_color_t *buf2 = heap_caps_malloc(LVGL_BUFF_SIZE_PIX * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    assert(buf2);
 
     //initialize LVGL draw buffers
-    lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_BUFF_SIZE_PIX);
+    lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LVGL_BUFF_SIZE_PIX);
 
     // ESP_LOGI(TAG, "Register display driver to LVGL");
     lv_disp_drv_init(&disp_drv);
@@ -336,15 +343,23 @@ lv_disp_t *bsp_display_start(void){
     BSP_ERROR_CHECK_RETURN_NULL(lvgl_port_tick_init());
 
     // Indev
-    lvgl_port_indev_init();
+    lvgl_port_indev_init(); // commented for testing
     // End Indev
+
+    ////////////////// Test
+    // lv_obj_t * btn = lv_btn_create(lv_scr_act());     /*Add a button the current screen*/
+    // lv_obj_set_pos(btn, 5, 5);                            /*Set its position*/
+    // lv_obj_set_size(btn, 70, 30);                          /*Set its size*/
+    // lv_obj_t * label = lv_label_create(btn);          /*Add a label to the button*/
+    // lv_label_set_text(label, "Button");                     /*Set the labels text*/
+    // lv_obj_center(label);
+    /////////////////////
 
     lvgl_mux = xSemaphoreCreateMutex();
 
     xTaskCreate(lvgl_port_task, "LVGLtask", 4096, NULL, CONFIG_BSP_DISPLAY_LVGL_TASK_PRIORITY, NULL);
 
-    //Tun on baclight by default
-    gpio_set_level(BSP_LCD_BK_LIGHT, LCD_BK_LIGHT_ON_LEVEL); 
+    bsp_display_backlight_on();
 
     return disp;
 }

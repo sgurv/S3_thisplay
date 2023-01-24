@@ -38,7 +38,7 @@ void app_main(void)
     disp = bsp_display_start();
 
     bsp_display_lock(0);
- //Button 1
+    //Button 1
     lv_obj_t * btn = lv_btn_create(lv_scr_act());     /*Add a button the current screen*/
     lv_obj_set_pos(btn, 5, 5);                            /*Set its position*/
     lv_obj_set_size(btn, 70, 30);                          /*Set its size*/
@@ -65,6 +65,10 @@ void app_main(void)
     bsp_display_unlock();
 
     while(1){
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        bsp_display_lock(0);
+        lv_led_toggle(led1);
+        bsp_display_unlock();
     }
 }
