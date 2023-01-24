@@ -41,7 +41,7 @@ esp_err_t bsp_i2c_init(void)
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_io_num = BSP_TP_SCL,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = 400 * 1000//CONFIG_BSP_I2C_CLK_SPEED_HZ
+        .master.clk_speed = 100 * 1000//CONFIG_BSP_I2C_CLK_SPEED_HZ
     };
     BSP_ERROR_CHECK_RETURN_ERR(i2c_param_config(BSP_TP_I2C_NUM, &i2c_conf));
     BSP_ERROR_CHECK_RETURN_ERR(i2c_driver_install(BSP_TP_I2C_NUM, i2c_conf.mode, 0, 0, 0));
@@ -151,7 +151,7 @@ esp_lcd_touch_handle_t bsp_touch_panel_init(void)
         .rst_gpio_num = BSP_TP_RST,
         .int_gpio_num = BSP_TP_INT,
         .levels = {
-            .reset = 0, //Reset level
+            .reset = 1, //Reset level
             .interrupt = 1, //Active High
         },
         .flags = { //Match it with the display settings
@@ -197,7 +197,7 @@ static esp_err_t lvgl_port_indev_init(void)
     static lv_indev_drv_t indev_drv_tp;
     lv_indev_t *indev_touchpad;
 
-    /* Initialize touch panel in sub board */
+    /* Initialize touch panel */
     tp = bsp_touch_panel_init();
     BSP_NULL_CHECK(tp, ESP_FAIL);
 
@@ -299,14 +299,14 @@ lv_disp_t *bsp_display_start(void){
         .bits_per_pixel = 16,
     };
 
-    //ST7735 LCD init
-    //ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_new_panel_st7735(io_handle, &panel_config, &panel_handle));
+    //ST7789 LCD init // 7735 also works
+    ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
+    //ESP_ERROR_CHECK(esp_lcd_new_panel_st7735(io_handle, &panel_config, &panel_handle));
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
 
-    //ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true)); // no effect here
+    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true)); // enabled for ST7789
 
     ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle,0,20)); //required adjusment depending on panel
 
@@ -343,17 +343,8 @@ lv_disp_t *bsp_display_start(void){
     BSP_ERROR_CHECK_RETURN_NULL(lvgl_port_tick_init());
 
     // Indev
-    lvgl_port_indev_init(); // commented for testing
+    lvgl_port_indev_init();
     // End Indev
-
-    ////////////////// Test
-    // lv_obj_t * btn = lv_btn_create(lv_scr_act());     /*Add a button the current screen*/
-    // lv_obj_set_pos(btn, 5, 5);                            /*Set its position*/
-    // lv_obj_set_size(btn, 70, 30);                          /*Set its size*/
-    // lv_obj_t * label = lv_label_create(btn);          /*Add a label to the button*/
-    // lv_label_set_text(label, "Button");                     /*Set the labels text*/
-    // lv_obj_center(label);
-    /////////////////////
 
     lvgl_mux = xSemaphoreCreateMutex();
 
