@@ -21,6 +21,7 @@
 #include "esp_sntp.h"
 #include "lvgl.h"
 #include "bsps3thisplay.h"
+#include "ui.h"
 
 #define EXAMPLE_ESP_WIFI_SSID "opt_ind"
 #define EXAMPLE_ESP_WIFI_PASS "shree987"
@@ -141,11 +142,11 @@ void app_main(void)
     // lv_obj_center(label);
 
     // /*Create a LED and switch it OFF*/
-    led1  = lv_led_create(lv_scr_act());
-    lv_obj_set_pos(led1, 20, 50);
-    //lv_obj_align(led1, LV_ALIGN_CENTER, -80, 0);
-    lv_led_set_color(led1, lv_palette_main(LV_PALETTE_AMBER));
-    lv_led_on(led1);
+    // led1  = lv_led_create(lv_scr_act());
+    // lv_obj_set_pos(led1, 20, 50);
+    // //lv_obj_align(led1, LV_ALIGN_CENTER, -80, 0);
+    // lv_led_set_color(led1, lv_palette_main(LV_PALETTE_AMBER));
+    // lv_led_on(led1);
 
     // const char * data = "Sandeep Guria";
 
@@ -154,13 +155,16 @@ void app_main(void)
     // lv_obj_set_pos(qr, 80, 0);
     // /*Set data*/
     // lv_qrcode_update(qr, data, strlen(data));
+
+    ui_init();
+
     bsp_display_unlock();
 
     while(1){
         vTaskDelay(pdMS_TO_TICKS(1000));
 
         bsp_display_lock(0);
-        lv_led_toggle(led1);
+        //lv_led_toggle(led1);
         bsp_display_unlock();
     }
 }
