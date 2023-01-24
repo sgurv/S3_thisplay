@@ -295,7 +295,7 @@ lv_disp_t *bsp_display_start(void){
 
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = BSP_LCD_RST,
-        .rgb_endian = ESP_LCD_COLOR_SPACE_RGB,
+        .rgb_endian = ESP_LCD_COLOR_SPACE_BGR,
         .bits_per_pixel = 16,
     };
 
@@ -306,7 +306,7 @@ lv_disp_t *bsp_display_start(void){
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
 
-    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true)); // enabled for ST7789
+    //ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
 
     ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle,0,20)); //required adjusment depending on panel
 
