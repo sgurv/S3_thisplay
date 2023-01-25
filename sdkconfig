@@ -1909,6 +1909,13 @@ CONFIG_BSP_DISPLAY_LVGL_TICK=5
 # end of Board Support Package
 
 #
+# ESP LCD TOUCH
+#
+CONFIG_ESP_LCD_TOUCH_MAX_POINTS=1
+CONFIG_ESP_LCD_TOUCH_MAX_BUTTONS=1
+# end of ESP LCD TOUCH
+
+#
 # LVGL configuration
 #
 CONFIG_LV_CONF_SKIP=y
@@ -2208,13 +2215,6 @@ CONFIG_LV_USE_GRID=y
 # CONFIG_LV_USE_DEMO_MUSIC is not set
 # end of Demos
 # end of LVGL configuration
-
-#
-# ESP LCD TOUCH
-#
-CONFIG_ESP_LCD_TOUCH_MAX_POINTS=1
-CONFIG_ESP_LCD_TOUCH_MAX_BUTTONS=1
-# end of ESP LCD TOUCH
 # end of Component config
 
 # Deprecated options for backward compatibility
