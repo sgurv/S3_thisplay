@@ -28,6 +28,9 @@
 
 #define ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WPA2_PSK
 
+//RGB LED
+static uint8_t led_strip_pixels[BSP_RMT_LED_NUMBERS * 3];
+
 static const char *TAG = "s3";
 
 static lv_disp_t *disp;
@@ -56,6 +59,15 @@ void app_main(void)
 {
     time_t now;
     struct tm timeinfo;
+
+    //RGB LED ,onboard 
+    ESP_ERROR_CHECK(bsp_rmt_led_strip_init());
+
+    led_strip_pixels[0] = 0xF0;//G
+    led_strip_pixels[1] = 0x00;//R
+    led_strip_pixels[2] = 0x00;//B
+
+    bsp_rmt_led_transmit(led_strip_pixels, sizeof(led_strip_pixels));
 
     //---Wifi
 

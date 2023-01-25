@@ -4,6 +4,7 @@
 #include "sdkconfig.h"
 #include "esp_timer.h"
 #include "driver/spi_master.h"
+#include "driver/rmt_tx.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_lcd_panel_io.h"
@@ -13,10 +14,16 @@
 #include "esp_lcd_touch_cst816d.h"
 #include "esp_lcd_st7735.h"
 #include "bsps3thisplay.h"
+#include "led_strip_encoder.h"
 
 
 static const char *TAG = "bspS3";
 
+//RGB LED
+static rmt_channel_handle_t led_chan = NULL;
+static rmt_encoder_handle_t led_encoder = NULL;
+
+//LCD
 static esp_lcd_touch_handle_t tp = NULL;            // LCD touch panel handle
 static lv_disp_draw_buf_t disp_buf; // contains internal graphic buffer(s) called draw buffer(s)
 static lv_disp_drv_t disp_drv;      // contains callback functions
@@ -52,6 +59,44 @@ esp_err_t bsp_i2c_init(void)
 esp_err_t bsp_i2c_deinit(void)
 {
     BSP_ERROR_CHECK_RETURN_ERR(i2c_driver_delete(BSP_TP_I2C_NUM));
+    return ESP_OK;
+}
+
+esp_err_t bsp_rmt_led_strip_init(void){
+        //RGB LED
+    ESP_LOGI(TAG, "Create RMT TX channel");
+    
+    rmt_tx_channel_config_t tx_chan_config = {
+        .clk_src = RMT_CLK_SRC_DEFAULT, // select source clock
+        .gpio_num = BSP_RMT_LED_STRIP_GPIO_NUM,
+        .mem_block_symbols = 64, // increase the block size can make the LED less flickering
+        .resolution_hz = BSP_RMT_LED_STRIP_RESOLUTION_HZ,
+        .trans_queue_depth = 4, // set the number of transactions that can be pending in the background
+    };
+    ESP_ERROR_CHECK(rmt_new_tx_channel(&tx_chan_config, &led_chan));
+
+    ESP_LOGI(TAG, "Install led strip encoder");
+    
+    led_strip_encoder_config_t encoder_config = {
+        .resolution = BSP_RMT_LED_STRIP_RESOLUTION_HZ,
+    };
+    ESP_ERROR_CHECK(rmt_new_led_strip_encoder(&encoder_config, &led_encoder));
+
+    ESP_LOGI(TAG, "Enable RMT TX channel");
+    ESP_ERROR_CHECK(rmt_enable(led_chan));
+    
+    //END RGB LED
+    return ESP_OK;
+}
+
+esp_err_t bsp_rmt_led_transmit(const void * payload, size_t payload_bytes){
+
+    rmt_transmit_config_t tx_config = {
+        .loop_count = 0, // no transfer loop
+    };
+
+    // Flush RGB values to LEDs
+    ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, (uint8_t*)payload, payload_bytes, &tx_config));
     return ESP_OK;
 }
 

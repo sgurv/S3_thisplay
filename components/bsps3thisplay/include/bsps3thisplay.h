@@ -39,6 +39,12 @@
 #define LCD_BK_LIGHT_ON_LEVEL  1
 #define LCD_BK_LIGHT_OFF_LEVEL !LCD_BK_LIGHT_ON_LEVEL
 
+#define BSP_RMT_LED_STRIP_RESOLUTION_HZ 10000000 // 10MHz resolution, 1 tick = 0.1us (led strip needs a high resolution)
+#define BSP_RMT_LED_STRIP_GPIO_NUM      48
+
+#define BSP_RMT_LED_NUMBERS         1
+
+//************Macros
 #if CONFIG_BSP_ERROR_CHECK
 #define BSP_ERROR_CHECK_RETURN_ERR(x)   ESP_ERROR_CHECK(x)
 #define BSP_ERROR_CHECK_RETURN_NULL(x)  ESP_ERROR_CHECK(x)
@@ -65,6 +71,10 @@
 #endif
 
 esp_err_t bsp_i2c_init(void); // For large display touch
+esp_err_t bsp_i2c_deinit(void);
+
+esp_err_t bsp_rmt_led_strip_init(void);
+esp_err_t bsp_rmt_led_transmit(const void * payload, size_t payload_bytes);
 
 /**
  * @brief Initialize display and graphics library
