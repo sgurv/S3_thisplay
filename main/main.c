@@ -63,12 +63,6 @@ void app_main(void)
     //RGB LED ,onboard 
     ESP_ERROR_CHECK(bsp_rmt_led_strip_init());
 
-    // led_strip_pixels[0] = 0xF0;//G
-    // led_strip_pixels[1] = 0x00;//R
-    // led_strip_pixels[2] = 0x00;//B
-
-    // bsp_rmt_led_transmit(led_strip_pixels, sizeof(led_strip_pixels));
-
     //---Wifi
 
     /* Initialize NVS partition */
