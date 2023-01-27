@@ -100,15 +100,16 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_style_bg_img_src(ui_Screen2, &ui_img_abstract_png, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Colorwheel2 = lv_colorwheel_create(ui_Screen2, true);
-    lv_obj_set_width(ui_Colorwheel2, 150);
-    lv_obj_set_height(ui_Colorwheel2, 150);
+    lv_obj_set_width(ui_Colorwheel2, 200);
+    lv_obj_set_height(ui_Colorwheel2, 200);
     lv_obj_set_x(ui_Colorwheel2, 1);
     lv_obj_set_y(ui_Colorwheel2, -19);
     lv_obj_set_align(ui_Colorwheel2, LV_ALIGN_CENTER);
+    lv_obj_set_style_arc_width(ui_Colorwheel2, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Switch2 = lv_switch_create(ui_Screen2);
-    lv_obj_set_width(ui_Switch2, 50);
-    lv_obj_set_height(ui_Switch2, 25);
+    lv_obj_set_width(ui_Switch2, 70);
+    lv_obj_set_height(ui_Switch2, 35);
     lv_obj_set_x(ui_Switch2, 0);
     lv_obj_set_y(ui_Switch2, -21);
     lv_obj_set_align(ui_Switch2, LV_ALIGN_CENTER);

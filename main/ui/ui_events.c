@@ -32,6 +32,7 @@ void switch1Clicked(lv_event_t * e)
 	lv_obj_t * obj = lv_event_get_target(e);
 
 	if(lv_obj_has_state(obj, LV_STATE_CHECKED)){
+		col.full = lv_color_to32(lv_colorwheel_get_rgb(ui_Colorwheel2));
 		led_strip_pixels[0] = col.ch.green;//G
     	led_strip_pixels[1] = col.ch.red;//R
     	led_strip_pixels[2] = col.ch.blue;//B
