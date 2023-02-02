@@ -48,7 +48,7 @@ esp_err_t bsp_i2c_init(void)
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_io_num = BSP_TP_SCL,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = 100 * 1000//CONFIG_BSP_I2C_CLK_SPEED_HZ
+        .master.clk_speed = 400 * 1000//CONFIG_BSP_I2C_CLK_SPEED_HZ
     };
     BSP_ERROR_CHECK_RETURN_ERR(i2c_param_config(BSP_TP_I2C_NUM, &i2c_conf));
     BSP_ERROR_CHECK_RETURN_ERR(i2c_driver_install(BSP_TP_I2C_NUM, i2c_conf.mode, 0, 0, 0));
