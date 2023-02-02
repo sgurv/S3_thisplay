@@ -256,8 +256,8 @@ static esp_err_t lvgl_port_indev_init(void)
     BSP_NULL_CHECK(indev_touchpad, ESP_ERR_NO_MEM);
 
     //--pointer
-    lv_obj_t * btn = lv_btn_create(lv_scr_act());     /*Add a button the current screen*/
-    lv_obj_set_size(btn, 8, 8); 
+    //lv_obj_t * btn = lv_btn_create(lv_scr_act());     /*Add a button the current screen*/
+    //lv_obj_set_size(btn, 8, 8); 
     // lv_obj_t *cursor;
     // cursor = lv_obj_create(lv_scr_act());
     // lv_obj_set_size(cursor, 8, 8);
@@ -267,7 +267,7 @@ static esp_err_t lvgl_port_indev_init(void)
     // lv_style_set_radius(&style_round,8);
     // lv_obj_add_style(cursor, &style_round,1);
     //lv_obj_set_click(cursor, false);
-    lv_indev_set_cursor(indev_touchpad, btn);
+    //lv_indev_set_cursor(indev_touchpad, btn);
 
     return ESP_OK;
 }

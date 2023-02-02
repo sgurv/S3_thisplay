@@ -37,6 +37,11 @@ static lv_disp_t *disp;
 
 // //LED global
 lv_obj_t * led1;
+
+//Clock
+char clock_str_buff[16];
+char clock_str_footer[32];
+
 static void initialize_sntp(void);
 
 static void event_handler(void* arg, esp_event_base_t event_base,
@@ -164,13 +169,27 @@ void app_main(void)
 
     ui_init();
 
+    // Change screen 1 backgroung
+    lv_obj_set_style_bg_img_src(ui_Screen1, &ui_img_flower_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0xF527C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_Label2, lv_color_hex(0xE5EEEE), LV_PART_MAIN | LV_STATE_DEFAULT);
+
     bsp_display_unlock();
 
     while(1){
         vTaskDelay(pdMS_TO_TICKS(1000));
-
+        time(&now);
+        localtime_r(&now, &timeinfo);
         bsp_display_lock(0);
         //lv_led_toggle(led1);
+        snprintf(clock_str_buff,16,"%02d:%02d:%02d",timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+        lv_label_set_text(ui_Label1, clock_str_buff);
+        snprintf(clock_str_buff,16,"%02d:%02d",timeinfo.tm_hour,timeinfo.tm_min);
+        lv_label_set_text(ui_Label4, clock_str_buff);
+        strftime(clock_str_footer, sizeof(clock_str_footer), LV_SYMBOL_BELL " %a,%d %b %Y", &timeinfo);
+        lv_label_set_text(ui_Label2, clock_str_footer);
+        lv_label_set_text(ui_Label3, clock_str_footer);
+        lv_label_set_text(ui_Label5, LV_SYMBOL_AUDIO " Cloudy");
         bsp_display_unlock();
     }
 }

@@ -22,9 +22,17 @@ void ui_event_Colorwheel2(lv_event_t * e);
 extern lv_obj_t * ui_Colorwheel2;
 void ui_event_Switch2(lv_event_t * e);
 extern lv_obj_t * ui_Switch2;
+void ui_event_Screen3(lv_event_t * e);
 extern lv_obj_t * ui_Screen3;
+extern lv_obj_t * ui_Label4;
+extern lv_obj_t * ui_Label5;
+extern lv_obj_t * ui_Image2;
+extern lv_obj_t * ui_Label3;
+void ui_event_Screen4(lv_event_t * e);
 extern lv_obj_t * ui_Screen4;
+void ui_event_Screen5(lv_event_t * e);
 extern lv_obj_t * ui_Screen5;
+extern lv_obj_t * ui_Chart2;
 
 void colorChanged(lv_event_t * e);
 void switch1Clicked(lv_event_t * e);
